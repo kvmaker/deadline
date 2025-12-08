@@ -1,0 +1,541 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: #000005;
+    min-height: 100vh;
+    padding: 10px;
+    color: #333;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* 深邃宇宙背景 */
+.universe-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse at 20% 80%, rgba(25, 10, 50, 0.8) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(10, 20, 60, 0.8) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(5, 5, 20, 1) 0%, #000005 100%);
+    z-index: 0;
+}
+
+/* 宇宙星空背景 */
+.stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.star {
+    position: absolute;
+    background: #fff;
+    border-radius: 50%;
+    animation: twinkle var(--duration) ease-in-out infinite;
+}
+
+.star.bright {
+    box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.6);
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: var(--opacity); transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.3); }
+}
+
+/* 流星 */
+.meteor {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #fff;
+    border-radius: 50%;
+    animation: meteor var(--duration) linear infinite;
+    animation-delay: var(--delay);
+    box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.8);
+}
+
+.meteor::before {
+    content: '';
+    position: absolute;
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(100,150,255,0.5), transparent);
+    transform: translateX(-100%);
+    border-radius: 2px;
+}
+
+@keyframes meteor {
+    0% {
+        transform: translate(0, 0) rotate(-45deg);
+        opacity: 1;
+    }
+    70% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(400px, 400px) rotate(-45deg);
+        opacity: 0;
+    }
+}
+
+/* 星球 */
+.planets {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.planet {
+    position: absolute;
+    border-radius: 50%;
+    animation: planetFloat var(--duration) ease-in-out infinite;
+}
+
+.planet.gas-giant {
+    background: 
+        radial-gradient(circle at 30% 30%, rgba(255, 200, 150, 0.9) 0%, transparent 50%),
+        linear-gradient(180deg, 
+            rgba(200, 150, 100, 0.8) 0%, 
+            rgba(180, 120, 80, 0.9) 20%,
+            rgba(160, 100, 60, 0.8) 40%,
+            rgba(200, 140, 90, 0.9) 60%,
+            rgba(170, 110, 70, 0.8) 80%,
+            rgba(150, 90, 50, 0.9) 100%);
+    box-shadow: 
+        inset -10px -10px 30px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(200, 150, 100, 0.3);
+}
+
+.planet.ice-giant {
+    background: 
+        radial-gradient(circle at 30% 30%, rgba(200, 230, 255, 0.9) 0%, transparent 50%),
+        linear-gradient(180deg, 
+            rgba(100, 150, 200, 0.9) 0%, 
+            rgba(80, 130, 180, 0.8) 50%,
+            rgba(60, 110, 160, 0.9) 100%);
+    box-shadow: 
+        inset -8px -8px 25px rgba(0, 0, 0, 0.4),
+        0 0 30px rgba(100, 150, 200, 0.4);
+}
+
+.planet.rocky {
+    background: 
+        radial-gradient(circle at 30% 30%, rgba(180, 180, 180, 0.9) 0%, transparent 50%),
+        radial-gradient(circle at 60% 70%, rgba(100, 100, 100, 0.5) 0%, transparent 30%),
+        linear-gradient(180deg, rgba(150, 140, 130, 0.9) 0%, rgba(100, 90, 80, 0.9) 100%);
+    box-shadow: 
+        inset -5px -5px 15px rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(150, 140, 130, 0.2);
+}
+
+.planet-ring {
+    position: absolute;
+    border: 3px solid rgba(200, 180, 150, 0.4);
+    border-radius: 50%;
+    transform: rotateX(75deg);
+    box-shadow: 0 0 10px rgba(200, 180, 150, 0.2);
+}
+
+@keyframes planetFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* 星座连线 */
+.constellations {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.constellation {
+    position: absolute;
+}
+
+.constellation-star {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    box-shadow: 0 0 8px 2px rgba(200, 220, 255, 0.6);
+}
+
+.constellation-line {
+    position: absolute;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(100, 150, 255, 0.3), rgba(100, 150, 255, 0.1));
+    transform-origin: left center;
+}
+
+/* 星云效果 */
+.nebula {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    animation: nebulaPulse 12s ease-in-out infinite;
+    z-index: 0;
+}
+
+.nebula-1 {
+    top: 5%;
+    left: 5%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(80, 40, 120, 0.4) 0%, rgba(40, 20, 80, 0.2) 50%, transparent 70%);
+}
+
+.nebula-2 {
+    bottom: 5%;
+    right: 5%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(20, 60, 100, 0.4) 0%, rgba(10, 30, 60, 0.2) 50%, transparent 70%);
+    animation-delay: -6s;
+}
+
+.nebula-3 {
+    top: 40%;
+    left: 60%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(100, 30, 60, 0.3) 0%, rgba(50, 15, 30, 0.15) 50%, transparent 70%);
+    animation-delay: -3s;
+}
+
+@keyframes nebulaPulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.15); }
+}
+
+.container {
+    width: 90%;
+    background: rgba(5, 5, 15, 0.3);
+    backdrop-filter: blur(5px);
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 0 60px rgba(50, 80, 150, 0.15);
+    border: 1px solid rgba(100, 150, 200, 0.1);
+    position: relative;
+    z-index: 10;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+h1 {
+    font-size: 1.2em;
+    color: #2d3748;
+    margin-bottom: 8px;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 6px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    min-width: 80px;
+}
+
+.stat-item .label {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.65em;
+    margin-bottom: 2px;
+    font-weight: 500;
+}
+
+.stat-item .value {
+    color: #fff;
+    font-size: 1.2em;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.stat-item .unit {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.6em;
+    margin-top: 2px;
+}
+
+.motto {
+    margin-top: 6px;
+    padding: 4px 8px;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 4px;
+    border-left: 2px solid #667eea;
+}
+
+.motto p {
+    color: #4a5568;
+    font-size: 0.7em;
+    font-style: italic;
+    line-height: 1.3;
+}
+
+.timeline {
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.year-marker {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    padding: 0 3px;
+}
+
+.year-label {
+    font-size: 0.6em;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(48, 1fr);
+    gap: 1px;
+    padding: 5px;
+    background: transparent;
+    border-radius: 6px;
+}
+
+.month-cell {
+    aspect-ratio: 1;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.month-cell:hover {
+    transform: scale(1.5);
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.8);
+    z-index: 10;
+}
+
+.month-cell.passed {
+    background: rgba(60, 70, 90, 0.3);
+    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+.month-cell.current {
+    background: linear-gradient(135deg, rgba(100, 130, 230, 0.9) 0%, rgba(120, 80, 170, 0.9) 100%);
+    box-shadow: 0 0 15px rgba(100, 130, 230, 0.8);
+    animation: dissolve 3s ease-in-out infinite;
+    position: relative;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.month-cell.current::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: inherit;
+    border-radius: inherit;
+    animation: particleFade 2s ease-out infinite;
+}
+
+.month-cell.current::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: transparent;
+    border: 2px solid rgba(100, 130, 230, 0.6);
+    border-radius: inherit;
+    animation: borderDissolve 3s ease-in-out infinite;
+}
+
+.month-cell.future {
+    background: linear-gradient(135deg, rgba(200, 210, 230, 0.7) 0%, rgba(180, 190, 210, 0.6) 100%);
+    border: 1px solid rgba(200, 220, 255, 0.3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.month-cell.future:hover {
+    background: linear-gradient(135deg, rgba(220, 230, 250, 0.85) 0%, rgba(200, 210, 230, 0.8) 100%);
+    box-shadow: 0 0 15px rgba(150, 180, 255, 0.5), 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 当前月份消散动画 */
+@keyframes dissolve {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(0.95);
+        filter: blur(0.5px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0);
+    }
+}
+
+@keyframes particleFade {
+    0% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.3;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.3);
+    }
+}
+
+@keyframes borderDissolve {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.4;
+        transform: scale(1.15);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.3);
+    }
+}
+
+.month-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.5em;
+    color: #2d3748;
+    font-weight: 600;
+    text-align: center;
+    width: 100%;
+    padding: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.month-cell:hover .month-info {
+    opacity: 1;
+}
+
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 8px;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 4px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.65em;
+    color: #4a5568;
+}
+
+.legend-box {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.legend-box.passed {
+    background: linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%);
+}
+
+.legend-box.current {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.legend-box.future {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    border: 2px solid #e2e8f0;
+}
+
+@media (max-width: 1200px) {
+    .grid-container {
+        grid-template-columns: repeat(40, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.2em;
+    }
+
+    .stats {
+        gap: 10px;
+    }
+
+    .stat-item {
+        padding: 6px 12px;
+        min-width: 80px;
+    }
+
+    .stat-item .value {
+        font-size: 1.2em;
+    }
+
+    .grid-container {
+        grid-template-columns: repeat(24, 1fr);
+    }
+
+    .legend {
+        flex-direction: row;
+        gap: 10px;
+    }
+}
