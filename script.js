@@ -111,145 +111,139 @@ function updateCurrentMonthProgress() {
     }
 }
 
-// 生成星空背景
-function generateStars() {
-    const starsContainer = document.getElementById('stars');
-    if (!starsContainer) return;
+// 生成水母
+function generateJellyfish() {
+    const container = document.getElementById('jellyfishContainer');
+    if (!container) return;
     
-    // 生成星星（更多层次）
-    for (let i = 0; i < 300; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        if (Math.random() > 0.9) star.classList.add('bright');
-        star.style.left = `${Math.random() * 100}%`;
-        star.style.top = `${Math.random() * 100}%`;
-        const size = Math.random() * 2.5 + 0.5;
-        star.style.width = `${size}px`;
-        star.style.height = `${size}px`;
-        star.style.setProperty('--duration', `${Math.random() * 4 + 2}s`);
-        star.style.setProperty('--opacity', `${Math.random() * 0.6 + 0.2}`);
-        starsContainer.appendChild(star);
-    }
-    
-    // 生成流星（更多、更明显）
-    for (let i = 0; i < 8; i++) {
-        const meteor = document.createElement('div');
-        meteor.className = 'meteor';
-        meteor.style.left = `${Math.random() * 60 + 10}%`;
-        meteor.style.top = `${Math.random() * 40}%`;
-        meteor.style.setProperty('--duration', `${Math.random() * 2 + 1.5}s`);
-        meteor.style.setProperty('--delay', `${Math.random() * 15}s`);
-        starsContainer.appendChild(meteor);
-    }
-}
-
-// 生成星球
-function generatePlanets() {
-    const planetsContainer = document.getElementById('planets');
-    if (!planetsContainer) return;
-    
-    const planetTypes = ['gas-giant', 'ice-giant', 'rocky'];
-    const planetConfigs = [
-        { type: 'gas-giant', size: 80, x: 85, y: 15, hasRing: true, duration: 20 },
-        { type: 'ice-giant', size: 45, x: 10, y: 70, hasRing: false, duration: 25 },
-        { type: 'rocky', size: 25, x: 75, y: 80, hasRing: false, duration: 18 },
-        { type: 'rocky', size: 15, x: 5, y: 20, hasRing: false, duration: 22 },
-    ];
-    
-    planetConfigs.forEach(config => {
-        const planet = document.createElement('div');
-        planet.className = `planet ${config.type}`;
-        planet.style.width = `${config.size}px`;
-        planet.style.height = `${config.size}px`;
-        planet.style.left = `${config.x}%`;
-        planet.style.top = `${config.y}%`;
-        planet.style.setProperty('--duration', `${config.duration}s`);
-        
-        if (config.hasRing) {
-            const ring = document.createElement('div');
-            ring.className = 'planet-ring';
-            ring.style.width = `${config.size * 1.8}px`;
-            ring.style.height = `${config.size * 0.6}px`;
-            ring.style.left = `${-config.size * 0.4}px`;
-            ring.style.top = `${config.size * 0.35}px`;
-            planet.appendChild(ring);
-        }
-        
-        planetsContainer.appendChild(planet);
-    });
-}
-
-// 生成星座
-function generateConstellations() {
-    const constellationsContainer = document.getElementById('constellations');
-    if (!constellationsContainer) return;
-    
-    // 定义几个简单的星座图案
-    const constellations = [
-        // 北斗七星形状
+    // 水母配置 - 不同颜色和大小
+    const jellyfishConfigs = [
         { 
-            x: 20, y: 25, 
-            stars: [[0, 0], [30, 5], [60, 0], [90, 10], [110, 30], [100, 55], [130, 70]],
-            lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6]]
+            size: 80, x: 15, y: 60, 
+            bodyColor: 'rgba(255, 100, 180, 0.6)', 
+            glowColor: 'rgba(255, 150, 200, 0.8)',
+            edgeColor: 'rgba(255, 80, 150, 0.4)',
+            tentacleColor: 'rgba(255, 120, 180, 0.5)',
+            floatDuration: 15, pulseDuration: 3
         },
-        // 猎户座形状
         { 
-            x: 70, y: 45, 
-            stars: [[20, 0], [0, 20], [40, 20], [10, 40], [30, 40], [20, 60], [20, 80]],
-            lines: [[0, 1], [0, 2], [1, 3], [2, 4], [3, 5], [4, 5], [5, 6]]
+            size: 120, x: 75, y: 40, 
+            bodyColor: 'rgba(100, 200, 255, 0.5)', 
+            glowColor: 'rgba(150, 220, 255, 0.7)',
+            edgeColor: 'rgba(80, 180, 255, 0.3)',
+            tentacleColor: 'rgba(100, 200, 255, 0.4)',
+            floatDuration: 20, pulseDuration: 4
         },
-        // 三角形
         { 
-            x: 45, y: 10, 
-            stars: [[0, 30], [40, 0], [80, 30]],
-            lines: [[0, 1], [1, 2], [2, 0]]
+            size: 60, x: 85, y: 75, 
+            bodyColor: 'rgba(180, 100, 255, 0.6)', 
+            glowColor: 'rgba(200, 150, 255, 0.8)',
+            edgeColor: 'rgba(160, 80, 255, 0.4)',
+            tentacleColor: 'rgba(180, 120, 255, 0.5)',
+            floatDuration: 12, pulseDuration: 2.5
+        },
+        { 
+            size: 50, x: 25, y: 25, 
+            bodyColor: 'rgba(100, 255, 200, 0.5)', 
+            glowColor: 'rgba(150, 255, 220, 0.7)',
+            edgeColor: 'rgba(80, 255, 180, 0.3)',
+            tentacleColor: 'rgba(100, 255, 200, 0.4)',
+            floatDuration: 18, pulseDuration: 3.5
+        },
+        { 
+            size: 90, x: 50, y: 70, 
+            bodyColor: 'rgba(255, 200, 100, 0.5)', 
+            glowColor: 'rgba(255, 220, 150, 0.7)',
+            edgeColor: 'rgba(255, 180, 80, 0.3)',
+            tentacleColor: 'rgba(255, 200, 100, 0.4)',
+            floatDuration: 22, pulseDuration: 3
+        },
+        { 
+            size: 40, x: 60, y: 15, 
+            bodyColor: 'rgba(255, 150, 150, 0.6)', 
+            glowColor: 'rgba(255, 180, 180, 0.8)',
+            edgeColor: 'rgba(255, 120, 120, 0.4)',
+            tentacleColor: 'rgba(255, 150, 150, 0.5)',
+            floatDuration: 14, pulseDuration: 2
         }
     ];
     
-    constellations.forEach(constellation => {
-        const group = document.createElement('div');
-        group.className = 'constellation';
-        group.style.left = `${constellation.x}%`;
-        group.style.top = `${constellation.y}%`;
+    jellyfishConfigs.forEach((config, index) => {
+        const jellyfish = document.createElement('div');
+        jellyfish.className = 'jellyfish';
+        jellyfish.style.setProperty('--size', `${config.size}px`);
+        jellyfish.style.setProperty('--start-x', `${config.x}vw`);
+        jellyfish.style.setProperty('--start-y', `${config.y}vh`);
+        jellyfish.style.setProperty('--float-duration', `${config.floatDuration}s`);
+        jellyfish.style.setProperty('--pulse-duration', `${config.pulseDuration}s`);
+        jellyfish.style.setProperty('--body-color', config.bodyColor);
+        jellyfish.style.setProperty('--glow-color', config.glowColor);
+        jellyfish.style.setProperty('--edge-color', config.edgeColor);
+        jellyfish.style.setProperty('--tentacle-color', config.tentacleColor);
+        jellyfish.style.animationDelay = `${index * -3}s`;
         
-        // 绘制连线
-        constellation.lines.forEach(([from, to]) => {
-            const star1 = constellation.stars[from];
-            const star2 = constellation.stars[to];
-            const line = document.createElement('div');
-            line.className = 'constellation-line';
-            
-            const dx = star2[0] - star1[0];
-            const dy = star2[1] - star1[1];
-            const length = Math.sqrt(dx * dx + dy * dy);
-            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-            
-            line.style.width = `${length}px`;
-            line.style.left = `${star1[0]}px`;
-            line.style.top = `${star1[1]}px`;
-            line.style.transform = `rotate(${angle}deg)`;
-            
-            group.appendChild(line);
-        });
+        // 水母身体
+        const body = document.createElement('div');
+        body.className = 'jellyfish-body';
         
-        // 绘制星星
-        constellation.stars.forEach(([x, y]) => {
-            const star = document.createElement('div');
-            star.className = 'constellation-star';
-            star.style.left = `${x}px`;
-            star.style.top = `${y}px`;
-            group.appendChild(star);
-        });
+        // 内部纹理
+        const inner = document.createElement('div');
+        inner.className = 'jellyfish-inner';
+        body.appendChild(inner);
         
-        constellationsContainer.appendChild(group);
+        jellyfish.appendChild(body);
+        
+        // 触须容器
+        const tentacles = document.createElement('div');
+        tentacles.className = 'jellyfish-tentacles';
+        tentacles.style.setProperty('--size', `${config.size}px`);
+        
+        // 生成多条触须
+        const tentacleCount = 8;
+        for (let i = 0; i < tentacleCount; i++) {
+            const tentacle = document.createElement('div');
+            tentacle.className = 'tentacle';
+            if (i % 3 === 0) tentacle.classList.add('thick');
+            if (i % 4 === 1) tentacle.classList.add('thin');
+            
+            const rotateRange = 15;
+            const baseRotate = (i - tentacleCount / 2) * 3;
+            tentacle.style.setProperty('--rotate-start', `${baseRotate - rotateRange / 2}deg`);
+            tentacle.style.setProperty('--rotate-end', `${baseRotate + rotateRange / 2}deg`);
+            tentacle.style.setProperty('--wave-duration', `${2 + Math.random()}s`);
+            tentacle.style.setProperty('--delay', `${i * 0.1}s`);
+            
+            tentacles.appendChild(tentacle);
+        }
+        
+        jellyfish.appendChild(tentacles);
+        container.appendChild(jellyfish);
     });
+}
+
+// 生成气泡
+function generateBubbles() {
+    const container = document.getElementById('bubbles');
+    if (!container) return;
+    
+    for (let i = 0; i < 30; i++) {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        const size = Math.random() * 8 + 3;
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        bubble.style.left = `${Math.random() * 100}%`;
+        bubble.style.bottom = `${Math.random() * 20}%`;
+        bubble.style.setProperty('--duration', `${Math.random() * 10 + 8}s`);
+        bubble.style.setProperty('--delay', `${Math.random() * 15}s`);
+        container.appendChild(bubble);
+    }
 }
 
 // 初始化
 window.addEventListener('load', () => {
-    generateStars();
-    generatePlanets();
-    generateConstellations();
+    generateJellyfish();
+    generateBubbles();
     generateLifeGrid();
     
     // 每分钟更新一次进度
