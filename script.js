@@ -111,114 +111,150 @@ function updateCurrentMonthProgress() {
     }
 }
 
+// 水母动画 - 基于C++代码移植（性能优化版）
+const JellyfishAnimation = {
+    canvas: null,
+    ctx: null,
+    t: 0,
+    N: 10000,
+    // 使用 TypedArray 提升性能
+    i_vec: null,
+    y_vec: null,
+    x_vec: null,
+    e_vec: null,
+    // 预计算的屏幕坐标缓冲
+    screenCoords: null,
+    animationId: null,
+    lastTime: 0,
+    
+    // 位异或运算
+    bitxor(a, b) {
+        return a ^ b;
+    },
+    
+    // 初始化
+    init() {
+        const container = document.getElementById('jellyfishContainer');
+        if (!container) return;
+        
+        // 创建canvas
+        this.canvas = document.createElement('canvas');
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.canvas.style.position = 'absolute';
+        this.canvas.style.top = '0';
+        this.canvas.style.left = '0';
+        this.canvas.style.width = '100%';
+        this.canvas.style.height = '100%';
+        container.appendChild(this.canvas);
+        
+        this.ctx = this.canvas.getContext('2d', { alpha: false });
+        
+        // 使用 TypedArray 提升性能
+        this.i_vec = new Float32Array(this.N);
+        this.y_vec = new Float32Array(this.N);
+        this.x_vec = new Float32Array(this.N);
+        this.e_vec = new Float32Array(this.N);
+        this.screenCoords = new Float32Array(this.N * 2);
+        
+        // 预计算数据
+        for (let idx = 0; idx < this.N; idx++) {
+            this.i_vec[idx] = idx + 1;
+            this.y_vec[idx] = this.i_vec[idx] / 345.0;
+            this.x_vec[idx] = this.y_vec[idx];
+            
+            if (this.y_vec[idx] < 11) {
+                this.x_vec[idx] = 6 + Math.sin(this.bitxor(Math.floor(this.x_vec[idx]), 8)) * 6;
+            } else {
+                this.x_vec[idx] = this.x_vec[idx] / 5 + Math.cos(this.x_vec[idx] / 2);
+            }
+            
+            this.e_vec[idx] = this.y_vec[idx] / 7 - 13;
+        }
+        
+        // 监听窗口大小变化
+        window.addEventListener('resize', () => {
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+        });
+        
+        // 开始动画
+        this.lastTime = performance.now();
+        this.animate();
+    },
+    
+    // 动画循环
+    animate(currentTime) {
+        const width = this.canvas.width;
+        const height = this.canvas.height;
+        const scale = Math.min(width, height) / 400;
+        const offsetX = width / 2 - 200 * scale;
+        const offsetY = height / 2 - 200 * scale;
+        
+        // 清除画布 - 使用更低的透明度实现拖尾效果
+        this.ctx.fillStyle = 'rgba(0, 5, 16, 0.12)';
+        this.ctx.fillRect(0, 0, width, height);
+        
+        // 获取 ImageData 进行批量像素操作
+        const imageData = this.ctx.getImageData(0, 0, width, height);
+        const data = imageData.data;
+        
+        // 绘制所有点
+        const t = this.t;
+        const t4 = t / 4;
+        const t2 = t / 2;
+        const t4x = t * 4;
+        
+        for (let idx = 0; idx < this.N; idx++) {
+            const i_val = this.i_vec[idx];
+            const x_val = this.x_vec[idx];
+            const y_val = this.y_vec[idx];
+            const e_val = this.e_vec[idx];
+            
+            const k = x_val * Math.cos(i_val - t4);
+            const kk = k * k;
+            const ee = e_val * e_val;
+            const d = Math.sqrt(kk + ee) + Math.sin(e_val / 4 + t) * 0.5;
+            const q = y_val * k / d * (3 + Math.sin(d * 2 + y_val * 0.5 - t4x));
+            const c = d * 0.5 + 1 - t2;
+            
+            // 计算屏幕坐标
+            let screenX = (q + 60 * Math.cos(c) + 200) * scale + offsetX;
+            let screenY = (400 - (q * Math.sin(c) + d * 29 - 170)) * scale + offsetY;
+            
+            // 边界检查
+            const px = Math.floor(screenX);
+            const py = Math.floor(screenY);
+            
+            if (px >= 0 && px < width && py >= 0 && py < height) {
+                const pixelIndex = (py * width + px) * 4;
+                // 根据深度计算颜色
+                const brightness = Math.min(255, 150 + d * 10);
+                data[pixelIndex] = brightness;         // R
+                data[pixelIndex + 1] = Math.min(255, brightness + 50); // G
+                data[pixelIndex + 2] = 255;            // B
+                data[pixelIndex + 3] = 255;            // A
+            }
+        }
+        
+        this.ctx.putImageData(imageData, 0, 0);
+        
+        this.t += Math.PI / 120;
+        
+        this.animationId = requestAnimationFrame((t) => this.animate(t));
+    },
+    
+    // 停止动画
+    stop() {
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+        }
+    }
+};
+
 // 生成水母
 function generateJellyfish() {
-    const container = document.getElementById('jellyfishContainer');
-    if (!container) return;
-    
-    // 水母配置 - 不同颜色和大小
-    const jellyfishConfigs = [
-        { 
-            size: 80, x: 15, y: 60, 
-            bodyColor: 'rgba(255, 100, 180, 0.6)', 
-            glowColor: 'rgba(255, 150, 200, 0.8)',
-            edgeColor: 'rgba(255, 80, 150, 0.4)',
-            tentacleColor: 'rgba(255, 120, 180, 0.5)',
-            floatDuration: 15, pulseDuration: 3
-        },
-        { 
-            size: 120, x: 75, y: 40, 
-            bodyColor: 'rgba(100, 200, 255, 0.5)', 
-            glowColor: 'rgba(150, 220, 255, 0.7)',
-            edgeColor: 'rgba(80, 180, 255, 0.3)',
-            tentacleColor: 'rgba(100, 200, 255, 0.4)',
-            floatDuration: 20, pulseDuration: 4
-        },
-        { 
-            size: 60, x: 85, y: 75, 
-            bodyColor: 'rgba(180, 100, 255, 0.6)', 
-            glowColor: 'rgba(200, 150, 255, 0.8)',
-            edgeColor: 'rgba(160, 80, 255, 0.4)',
-            tentacleColor: 'rgba(180, 120, 255, 0.5)',
-            floatDuration: 12, pulseDuration: 2.5
-        },
-        { 
-            size: 50, x: 25, y: 25, 
-            bodyColor: 'rgba(100, 255, 200, 0.5)', 
-            glowColor: 'rgba(150, 255, 220, 0.7)',
-            edgeColor: 'rgba(80, 255, 180, 0.3)',
-            tentacleColor: 'rgba(100, 255, 200, 0.4)',
-            floatDuration: 18, pulseDuration: 3.5
-        },
-        { 
-            size: 90, x: 50, y: 70, 
-            bodyColor: 'rgba(255, 200, 100, 0.5)', 
-            glowColor: 'rgba(255, 220, 150, 0.7)',
-            edgeColor: 'rgba(255, 180, 80, 0.3)',
-            tentacleColor: 'rgba(255, 200, 100, 0.4)',
-            floatDuration: 22, pulseDuration: 3
-        },
-        { 
-            size: 40, x: 60, y: 15, 
-            bodyColor: 'rgba(255, 150, 150, 0.6)', 
-            glowColor: 'rgba(255, 180, 180, 0.8)',
-            edgeColor: 'rgba(255, 120, 120, 0.4)',
-            tentacleColor: 'rgba(255, 150, 150, 0.5)',
-            floatDuration: 14, pulseDuration: 2
-        }
-    ];
-    
-    jellyfishConfigs.forEach((config, index) => {
-        const jellyfish = document.createElement('div');
-        jellyfish.className = 'jellyfish';
-        jellyfish.style.setProperty('--size', `${config.size}px`);
-        jellyfish.style.setProperty('--start-x', `${config.x}vw`);
-        jellyfish.style.setProperty('--start-y', `${config.y}vh`);
-        jellyfish.style.setProperty('--float-duration', `${config.floatDuration}s`);
-        jellyfish.style.setProperty('--pulse-duration', `${config.pulseDuration}s`);
-        jellyfish.style.setProperty('--body-color', config.bodyColor);
-        jellyfish.style.setProperty('--glow-color', config.glowColor);
-        jellyfish.style.setProperty('--edge-color', config.edgeColor);
-        jellyfish.style.setProperty('--tentacle-color', config.tentacleColor);
-        jellyfish.style.animationDelay = `${index * -3}s`;
-        
-        // 水母身体
-        const body = document.createElement('div');
-        body.className = 'jellyfish-body';
-        
-        // 内部纹理
-        const inner = document.createElement('div');
-        inner.className = 'jellyfish-inner';
-        body.appendChild(inner);
-        
-        jellyfish.appendChild(body);
-        
-        // 触须容器
-        const tentacles = document.createElement('div');
-        tentacles.className = 'jellyfish-tentacles';
-        tentacles.style.setProperty('--size', `${config.size}px`);
-        
-        // 生成多条触须
-        const tentacleCount = 8;
-        for (let i = 0; i < tentacleCount; i++) {
-            const tentacle = document.createElement('div');
-            tentacle.className = 'tentacle';
-            if (i % 3 === 0) tentacle.classList.add('thick');
-            if (i % 4 === 1) tentacle.classList.add('thin');
-            
-            const rotateRange = 15;
-            const baseRotate = (i - tentacleCount / 2) * 3;
-            tentacle.style.setProperty('--rotate-start', `${baseRotate - rotateRange / 2}deg`);
-            tentacle.style.setProperty('--rotate-end', `${baseRotate + rotateRange / 2}deg`);
-            tentacle.style.setProperty('--wave-duration', `${2 + Math.random()}s`);
-            tentacle.style.setProperty('--delay', `${i * 0.1}s`);
-            
-            tentacles.appendChild(tentacle);
-        }
-        
-        jellyfish.appendChild(tentacles);
-        container.appendChild(jellyfish);
-    });
+    JellyfishAnimation.init();
 }
 
 // 生成气泡
